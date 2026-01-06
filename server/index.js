@@ -164,15 +164,21 @@ async function initDB() {
 
     // Seed Admin
     const adminEmail = 'ajith12vkm@gmail.com';
-    const [existingAdmin] = await db.query('SELECT * FROM users WHERE email = ?', [adminEmail]);
+    const hashedPassword = await bcrypt.hash('vkmajith@12', 10);
     
-    if (existingAdmin.length === 0) {
+    // Check if admin exists
+    const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [adminEmail]);
+    
+    if (existing.length === 0) {
       console.log("⚙️  Seeding Admin Account...");
-      const hashedPassword = await bcrypt.hash('vkmajith@12', 10);
       await db.query(
         'INSERT INTO users (name, email, password, phone, city, area, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
         ['VKM Admin', adminEmail, hashedPassword, '9999999999', 'Kanchipuram', 'Headquarters', 'ADMIN']
       );
+    } else {
+       // Force update password to ensure access if it was changed or corrupted
+       console.log("⚙️  Updating Admin Credentials to Default...");
+       await db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, adminEmail]);
     }
 
   } catch (err) {
@@ -273,7 +279,10 @@ router.get('/products', async (req, res) => {
       images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
       durationHours: p.duration_hours
     })));
-  } catch (err) { res.json([]); }
+  } catch (err) { 
+    console.error("Fetch products error:", err);
+    res.json([]); 
+  }
 });
 
 router.post('/products', verifyToken, isAdmin, async (req, res) => {
