@@ -45,8 +45,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 /**
  * DATABASE INITIALIZATION
@@ -162,7 +162,7 @@ async function initDB() {
       )
     `);
 
-    // Seed Admin
+    // Seed/Update Admin
     const adminEmail = 'ajith12vkm@gmail.com';
     const hashedPassword = await bcrypt.hash('vkmajith@12', 10);
     
@@ -176,9 +176,9 @@ async function initDB() {
         ['VKM Admin', adminEmail, hashedPassword, '9999999999', 'Kanchipuram', 'Headquarters', 'ADMIN']
       );
     } else {
-       // Force update password to ensure access if it was changed or corrupted
-       console.log("⚙️  Updating Admin Credentials to Default...");
-       await db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, adminEmail]);
+       // Force update password and role to ensure access
+       console.log("⚙️  Ensuring Admin Credentials & Role are correct...");
+       await db.query('UPDATE users SET password = ?, role = ? WHERE email = ?', [hashedPassword, 'ADMIN', adminEmail]);
     }
 
   } catch (err) {
@@ -236,6 +236,12 @@ router.post('/register', async (req, res) => {
   try {
     const db = await getDB();
     const { name, email, password, phone, city, area } = req.body;
+    
+    // Validation
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await db.query(
       'INSERT INTO users (name, email, password, phone, city, area, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -244,8 +250,12 @@ router.post('/register', async (req, res) => {
     const user = { id: result.insertId.toString(), name, email, role: 'USER' };
     const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
     res.json({ user, token });
-  } catch (err) { 
-    res.status(500).json({ error: 'Registration failed or Email already exists' }); 
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Email already registered. Please login.' });
+    }
+    console.error("Registration Error:", err);
+    res.status(500).json({ error: 'Registration failed: ' + err.message }); 
   }
 });
 
@@ -265,7 +275,10 @@ router.post('/login', async (req, res) => {
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }
-  } catch (err) { res.status(500).json({ error: 'Login failed' }); }
+  } catch (err) { 
+    console.error("Login Error:", err);
+    res.status(500).json({ error: 'Login failed: ' + err.message }); 
+  }
 });
 
 // -- PRODUCTS --
@@ -273,12 +286,20 @@ router.get('/products', async (req, res) => {
   try {
     const db = await getDB();
     const [rows] = await db.query('SELECT * FROM products ORDER BY created_at DESC');
-    res.json(rows.map(p => ({ 
-      ...p, 
-      id: p.id.toString(), 
-      images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
-      durationHours: p.duration_hours
-    })));
+    res.json(rows.map(p => {
+      let images = [];
+      try {
+        images = typeof p.images === 'string' ? JSON.parse(p.images) : (p.images || []);
+      } catch (e) {
+        images = [];
+      }
+      return { 
+        ...p, 
+        id: p.id.toString(), 
+        images: Array.isArray(images) ? images : [],
+        durationHours: p.duration_hours
+      };
+    }));
   } catch (err) { 
     console.error("Fetch products error:", err);
     res.json([]); 
@@ -321,8 +342,8 @@ router.get('/orders', verifyToken, async (req, res) => {
     const formatted = rows.map(r => {
       let img = 'https://via.placeholder.com/150';
       try {
-        const imgs = typeof r.productImages === 'string' ? JSON.parse(r.productImages) : r.productImages;
-        if (imgs && imgs.length > 0) img = imgs[0];
+        const imgs = typeof r.productImages === 'string' ? JSON.parse(r.productImages) : (r.productImages || []);
+        if (Array.isArray(imgs) && imgs.length > 0) img = imgs[0];
       } catch (e) {}
 
       return {
@@ -409,7 +430,7 @@ router.get('/custom-orders', verifyToken, async (req, res) => {
       requestedTime: r.requested_time,
       contactName: r.contact_name,
       contactPhone: r.contact_phone,
-      images: typeof r.images === 'string' ? JSON.parse(r.images) : r.images,
+      images: typeof r.images === 'string' ? JSON.parse(r.images) : (r.images || []),
       status: r.status,
       createdAt: r.created_at,
       deadlineAt: r.deadline_at || r.created_at
