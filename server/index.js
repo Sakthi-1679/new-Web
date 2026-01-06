@@ -8,12 +8,13 @@ import jwt from 'jsonwebtoken';
 import helmet from 'helmet';
 
 const app = express();
+const router = express.Router(); // Create a router for API routes
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'vkm-default-secret';
 
 // Basic Logger
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -33,12 +34,11 @@ const allowedOrigins = [
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
-    // Allow requests from allowed origins, vercel apps, or localhost for dev
     if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app') || origin.includes('localhost')) {
       callback(null, true);
     } else {
       console.log("Blocked by CORS:", origin);
-      callback(null, true); // Permissive for initial setup, restrict later if needed
+      callback(null, true);
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -220,13 +220,13 @@ const isAdmin = (req, res, next) => {
 };
 
 /**
- * ROUTES
+ * ROUTES (Defined on router, without /api prefix)
  */
-app.get('/api/health', (req, res) => {
+router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
-app.post('/api/register', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const db = await getDB();
     const { name, email, password, phone, city, area } = req.body;
@@ -243,7 +243,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-app.post('/api/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const db = await getDB();
     const { email, password } = req.body;
@@ -263,7 +263,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // -- PRODUCTS --
-app.get('/api/products', async (req, res) => {
+router.get('/products', async (req, res) => {
   try {
     const db = await getDB();
     const [rows] = await db.query('SELECT * FROM products ORDER BY created_at DESC');
@@ -276,7 +276,7 @@ app.get('/api/products', async (req, res) => {
   } catch (err) { res.json([]); }
 });
 
-app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
+router.post('/products', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     const { title, description, price, durationHours, images } = req.body;
@@ -288,7 +288,7 @@ app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/products/:id', verifyToken, isAdmin, async (req, res) => {
+router.delete('/products/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     await db.query('DELETE FROM products WHERE id = ?', [req.params.id]);
@@ -297,7 +297,7 @@ app.delete('/api/products/:id', verifyToken, isAdmin, async (req, res) => {
 });
 
 // -- ORDERS --
-app.get('/api/orders', verifyToken, async (req, res) => {
+router.get('/orders', verifyToken, async (req, res) => {
   try {
     const db = await getDB();
     let query = `
@@ -338,7 +338,7 @@ app.get('/api/orders', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/api/orders', verifyToken, async (req, res) => {
+router.post('/orders', verifyToken, async (req, res) => {
   try {
     const db = await getDB();
     const { userId, productId, quantity, description } = req.body;
@@ -360,7 +360,7 @@ app.post('/api/orders', verifyToken, async (req, res) => {
   }
 });
 
-app.put('/api/orders/:id/status', verifyToken, isAdmin, async (req, res) => {
+router.put('/orders/:id/status', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     const { status } = req.body;
@@ -373,7 +373,7 @@ app.put('/api/orders/:id/status', verifyToken, isAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Update failed' }); }
 });
 
-app.delete('/api/orders/:id', verifyToken, isAdmin, async (req, res) => {
+router.delete('/orders/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     await db.query('DELETE FROM orders WHERE id = ?', [req.params.id]);
@@ -382,7 +382,7 @@ app.delete('/api/orders/:id', verifyToken, isAdmin, async (req, res) => {
 });
 
 // -- CUSTOM ORDERS --
-app.get('/api/custom-orders', verifyToken, async (req, res) => {
+router.get('/custom-orders', verifyToken, async (req, res) => {
   try {
     const db = await getDB();
     const [rows] = await db.query(`
@@ -409,7 +409,7 @@ app.get('/api/custom-orders', verifyToken, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/custom-orders', verifyToken, async (req, res) => {
+router.post('/custom-orders', verifyToken, async (req, res) => {
   try {
     const db = await getDB();
     const { userId, description, requestedDate, requestedTime, contactName, contactPhone, images } = req.body;
@@ -421,7 +421,7 @@ app.post('/api/custom-orders', verifyToken, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Custom Order failed' }); }
 });
 
-app.put('/api/custom-orders/:id/status', verifyToken, isAdmin, async (req, res) => {
+router.put('/custom-orders/:id/status', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     const { status } = req.body;
@@ -434,7 +434,7 @@ app.put('/api/custom-orders/:id/status', verifyToken, isAdmin, async (req, res) 
   } catch (err) { res.status(500).json({ error: 'Update failed' }); }
 });
 
-app.delete('/api/custom-orders/:id', verifyToken, isAdmin, async (req, res) => {
+router.delete('/custom-orders/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     await db.query('DELETE FROM custom_orders WHERE id = ?', [req.params.id]);
@@ -443,7 +443,7 @@ app.delete('/api/custom-orders/:id', verifyToken, isAdmin, async (req, res) => {
 });
 
 // -- SETTINGS --
-app.get('/api/settings/contact', async (req, res) => {
+router.get('/settings/contact', async (req, res) => {
   try {
     const db = await getDB();
     const [rows] = await db.query("SELECT value FROM settings WHERE key_name = 'admin_phone'");
@@ -451,7 +451,7 @@ app.get('/api/settings/contact', async (req, res) => {
   } catch (err) { res.json({ phone: '9999999999' }); }
 });
 
-app.put('/api/settings/contact', verifyToken, isAdmin, async (req, res) => {
+router.put('/settings/contact', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     const { phone } = req.body;
@@ -461,7 +461,7 @@ app.put('/api/settings/contact', verifyToken, isAdmin, async (req, res) => {
 });
 
 // -- USERS --
-app.get('/api/users/:id', verifyToken, isAdmin, async (req, res) => {
+router.get('/users/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
     const [rows] = await db.query('SELECT id, name, email, phone, city, area, role FROM users WHERE id = ?', [req.params.id]);
@@ -471,6 +471,10 @@ app.get('/api/users/:id', verifyToken, isAdmin, async (req, res) => {
     res.json(u);
   } catch (err) { res.status(500).json({ error: 'Fetch failed' }); }
 });
+
+// Register routes
+app.use('/api', router);
+app.use('/', router); // Also handle requests without /api prefix
 
 // START SERVER (Render)
 app.listen(PORT, '0.0.0.0', () => {
