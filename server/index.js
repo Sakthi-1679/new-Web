@@ -28,6 +28,7 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   process.env.FRONTEND_URL 
 ];
 
@@ -41,9 +42,12 @@ app.use(cors({
       callback(null, true);
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -506,7 +510,12 @@ router.get('/users/:id', verifyToken, isAdmin, async (req, res) => {
 app.use('/api', router);
 app.use('/', router); // Also handle requests without /api prefix
 
-// START SERVER (Render)
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export app for Vercel
+export default app;
+
+// Start server if not running in Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
