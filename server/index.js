@@ -322,6 +322,21 @@ router.post('/products', verifyToken, isAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+router.put('/products/:id', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const db = await getDB();
+    const { title, description, price, durationHours, images } = req.body;
+    await db.query(
+      'UPDATE products SET title=?, description=?, price=?, duration_hours=?, images=? WHERE id=?',
+      [title, description, price, durationHours, JSON.stringify(images), req.params.id]
+    );
+    res.json({ success: true, id: req.params.id, ...req.body });
+  } catch (err) { 
+    console.error(err);
+    res.status(500).json({ error: 'Update failed' }); 
+  }
+});
+
 router.delete('/products/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const db = await getDB();
