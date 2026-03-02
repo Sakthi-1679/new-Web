@@ -176,3 +176,226 @@ The backend already allows:
 - The URL set in the `FRONTEND_URL` environment variable
 
 If your frontend is hosted on a custom domain, add it to the `FRONTEND_URL` environment variable on your backend deployment.
+
+---
+
+## Android App Integration
+
+### 1. Find your Vercel backend URL
+
+After deploying to Vercel (see the [Hosting on Vercel](#hosting-on-vercel) section above), open your Vercel project dashboard. The URL is shown at the top of the **Overview** tab, e.g.:
+
+```
+https://new-web-<your-username>.vercel.app
+```
+
+You can verify the backend is reachable by opening this URL in a browser or running:
+
+```
+https://new-web-<your-username>.vercel.app/api/health
+```
+
+You should see `{"status":"ok","timestamp":"..."}`.
+
+> **No CORS changes are needed for Android.** Native Android apps do not send an `Origin` header, so they are already allowed by the existing server configuration.
+
+---
+
+### 2. Add constants to your Android project
+
+Create `app/src/main/java/<your/package>/network/ApiConstants.kt`:
+
+```kotlin
+package com.example.vkmflowershop.network
+
+object ApiConstants {
+    // Replace with your actual Vercel deployment URL
+    const val BASE_URL = "https://new-web-<your-username>.vercel.app/api/"
+}
+```
+
+---
+
+### 3. Add Retrofit & OkHttp dependencies
+
+In your `app/build.gradle` (or `build.gradle.kts`):
+
+```kotlin
+dependencies {
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+}
+```
+
+---
+
+### 4. Create the Retrofit service
+
+`ApiService.kt`:
+
+```kotlin
+package com.example.vkmflowershop.network
+
+import retrofit2.Response
+import retrofit2.http.*
+
+// --- Request / Response data classes ---
+
+data class RegisterRequest(
+    val name: String,
+    val email: String,
+    val password: String,
+    val phone: String,
+    val city: String,
+    val area: String
+)
+
+data class LoginRequest(val email: String, val password: String)
+
+data class AuthResponse(val user: UserDto, val token: String)
+
+data class UserDto(
+    val id: String,
+    val name: String,
+    val email: String,
+    val role: String
+)
+
+data class Product(
+    val id: String,
+    val title: String,
+    val description: String?,
+    val price: Double,
+    val durationHours: Int,
+    val images: List<String>
+)
+
+// --- Retrofit service interface ---
+
+interface ApiService {
+
+    @POST("register")
+    suspend fun register(@Body body: RegisterRequest): Response<AuthResponse>
+
+    @POST("login")
+    suspend fun login(@Body body: LoginRequest): Response<AuthResponse>
+
+    @GET("products")
+    suspend fun getProducts(): Response<List<Product>>
+
+    @GET("orders")
+    suspend fun getOrders(@Header("Authorization") token: String): Response<List<Any>>
+
+    @POST("orders")
+    suspend fun placeOrder(
+        @Header("Authorization") token: String,
+        @Body body: Map<String, Any>
+    ): Response<Map<String, Any>>
+}
+```
+
+---
+
+### 5. Build the Retrofit instance
+
+`RetrofitClient.kt`:
+
+```kotlin
+package com.example.vkmflowershop.network
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object RetrofitClient {
+
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY   // remove in production
+    }
+
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(loggingInterceptor)
+        .build()
+
+    val apiService: ApiService = Retrofit.Builder()
+        .baseUrl(ApiConstants.BASE_URL)
+        .client(httpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService::class.java)
+}
+```
+
+---
+
+### 6. Usage examples (ViewModel / coroutine)
+
+#### Login
+
+```kotlin
+// In a ViewModel (viewModelScope) or a coroutine:
+val response = RetrofitClient.apiService.login(LoginRequest("user@example.com", "password123"))
+if (response.isSuccessful) {
+    val token = response.body()?.token ?: return
+    // Save token to SharedPreferences / DataStore
+    prefs.edit().putString("jwt_token", token).apply()
+} else {
+    // Handle error: response.code(), response.errorBody()?.string()
+}
+```
+
+#### Register
+
+```kotlin
+val response = RetrofitClient.apiService.register(
+    RegisterRequest(
+        name = "John Doe",
+        email = "john@example.com",
+        password = "secret",
+        phone = "9876543210",
+        city = "Kanchipuram",
+        area = "Main Street"
+    )
+)
+if (response.isSuccessful) {
+    val token = response.body()?.token ?: return
+    prefs.edit().putString("jwt_token", token).apply()
+}
+```
+
+#### Authenticated requests
+
+```kotlin
+val token = prefs.getString("jwt_token", "") ?: ""
+val products = RetrofitClient.apiService.getProducts()          // no auth needed
+val orders   = RetrofitClient.apiService.getOrders("Bearer $token")
+```
+
+---
+
+### 7. Internet permission
+
+Make sure `AndroidManifest.xml` contains:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+---
+
+### 8. Quick API reference for Android
+
+| Endpoint | Method | Auth | Body / Notes |
+|---|---|---|---|
+| `/api/health` | GET | — | Health check |
+| `/api/register` | POST | — | `{ name, email, password, phone, city, area }` |
+| `/api/login` | POST | — | `{ email, password }` → returns `{ user, token }` |
+| `/api/products` | GET | — | Returns product list |
+| `/api/orders` | GET | Bearer token | Returns order list |
+| `/api/orders` | POST | Bearer token | `{ userId, productId, quantity, description }` |
+| `/api/custom-orders` | GET | Bearer token | Returns custom-order list |
+| `/api/custom-orders` | POST | Bearer token | `{ userId, description, requestedDate, requestedTime, contactName, contactPhone, images }` |
+| `/api/settings/contact` | GET | — | Returns `{ phone }` |
