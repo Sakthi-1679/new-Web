@@ -7,7 +7,7 @@ import { User, Product, Order, CustomOrder, OrderStatus, AuthResponse } from '..
 // For local physical device testing:  http://YOUR_LAN_IP:3001/api
 // For production (Render): https://YOUR_APP.onrender.com/api
 // ─────────────────────────────────────────────────────────────
-export const API_URL = 'https://YOUR_APP.onrender.com/api';
+export const API_URL = 'https://new-ke1aq1mbd-sakthivel-rs-projects-22b1ea94.vercel.app/api';
 
 const SESSION_KEY = 'vkm_session';
 

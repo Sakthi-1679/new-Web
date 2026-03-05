@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:paddingBottom="40dp">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Custom Order"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/brand_dark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Describe your dream arrangement"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Description -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="YOUR DESCRIPTION *" android:textSize="10sp" android:textStyle="bold"
+            android:textColor="@color/text_secondary" android:letterSpacing="0.08"
+            android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/etDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:padding="14dp"
+            android:hint="E.g. 50 white roses with baby breath..."
+            android:textColorHint="@color/text_hint"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:gravity="top"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Delivery Date -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="DELIVERY DATE * (YYYY-MM-DD)" android:textSize="10sp" android:textStyle="bold"
+            android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:padding="14dp"
+            android:hint="2026-03-15"
+            android:textColorHint="@color/text_hint"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:inputType="date"
+            android:singleLine="true"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Delivery Time -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="DELIVERY TIME * (HH:MM)" android:textSize="10sp" android:textStyle="bold"
+            android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/etTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:padding="14dp"
+            android:hint="10:00"
+            android:textColorHint="@color/text_hint"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:inputType="time"
+            android:singleLine="true"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Contact Name -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="CONTACT NAME *" android:textSize="10sp" android:textStyle="bold"
+            android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:padding="14dp"
+            android:hint="Your name"
+            android:textColorHint="@color/text_hint"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:singleLine="true"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Contact Phone -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="CONTACT PHONE *" android:textSize="10sp" android:textStyle="bold"
+            android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:padding="14dp"
+            android:hint="9876543210"
+            android:textColorHint="@color/text_hint"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Photos -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="REFERENCE PHOTOS (OPTIONAL, MAX 5)" android:textSize="10sp" android:textStyle="bold"
+            android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnAddPhotos"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_dashed"
+            android:text="📷  Add Photos"
+            android:textColor="@color/primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+
+        <TextView
+            android:id="@+id/tvPhotoCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/5 photos"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone" />
+
+        <!-- Submit Button -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_button"
+                android:text=""
+                android:stateListAnimator="@null" />
+
+            <TextView
+                android:id="@+id/btnSubmitText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Place Custom Order"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="@color/white" />
+        </FrameLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

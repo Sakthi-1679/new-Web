@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ===== Outer wreath ring ===== -->
+    <!-- Top-left arc branch -->
+    <path android:strokeColor="#1B4D3E" android:strokeWidth="1.2" android:fillColor="#00000000"
+        android:pathData="M38,26 Q28,30 24,42" />
+    <!-- Top-right arc branch -->
+    <path android:strokeColor="#1B4D3E" android:strokeWidth="1.2" android:fillColor="#00000000"
+        android:pathData="M70,26 Q80,30 84,42" />
+    <!-- Bottom-left arc branch -->
+    <path android:strokeColor="#1B4D3E" android:strokeWidth="1.2" android:fillColor="#00000000"
+        android:pathData="M24,52 Q22,64 30,74" />
+    <!-- Bottom-right arc branch -->
+    <path android:strokeColor="#1B4D3E" android:strokeWidth="1.2" android:fillColor="#00000000"
+        android:pathData="M84,52 Q86,64 78,74" />
+    <!-- Bottom arc -->
+    <path android:strokeColor="#1B4D3E" android:strokeWidth="1.2" android:fillColor="#00000000"
+        android:pathData="M32,76 Q54,88 76,76" />
+
+    <!-- Wreath leaves - left side -->
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M26,44 C23,40 18,42 19,46 C20,50 25,50 27,47 Z" />
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M23,55 C19,53 16,57 18,61 C20,65 25,63 25,59 Z" />
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M28,66 C24,65 22,70 25,73 C28,76 33,73 31,69 Z" />
+    <!-- Wreath leaves - right side -->
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M82,44 C85,40 90,42 89,46 C88,50 83,50 81,47 Z" />
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M85,55 C89,53 92,57 90,61 C88,65 83,63 83,59 Z" />
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M80,66 C84,65 86,70 83,73 C80,76 75,73 77,69 Z" />
+    <!-- Wreath leaves - bottom -->
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M40,82 C38,78 33,79 33,83 C33,87 38,87 40,84 Z" />
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M54,86 C52,82 47,83 47,87 C47,90 52,90 54,88 Z" />
+    <path android:fillColor="#2E6B4F"
+        android:pathData="M68,82 C70,78 75,79 75,83 C75,87 70,87 68,84 Z" />
+    <!-- Small berries/buds -->
+    <path android:fillColor="#8B1538"
+        android:pathData="M35,79 A2,2 0 1,0 35.01,79 Z" />
+    <path android:fillColor="#8B1538"
+        android:pathData="M73,79 A2,2 0 1,0 73.01,79 Z" />
+    <path android:fillColor="#8B1538"
+        android:pathData="M54,90 A2,2 0 1,0 54.01,90 Z" />
+
+    <!-- ===== Rose at top centre ===== -->
+    <!-- Outer petals -->
+    <path android:fillColor="#8B1538"
+        android:pathData="M54,14 C48,8 40,10 38,16 C36,22 40,28 46,28 C50,28 53,24 54,14 Z" />
+    <path android:fillColor="#8B1538"
+        android:pathData="M54,14 C60,8 68,10 70,16 C72,22 68,28 62,28 C58,28 55,24 54,14 Z" />
+    <path android:fillColor="#A0183E"
+        android:pathData="M54,14 C50,12 46,15 45,20 C44,25 47,29 51,29 C54,29 55,24 54,14 Z" />
+    <path android:fillColor="#A0183E"
+        android:pathData="M54,14 C58,12 62,15 63,20 C64,25 61,29 57,29 C54,29 53,24 54,14 Z" />
+    <!-- Inner petals -->
+    <path android:fillColor="#B81C46"
+        android:pathData="M54,17 C51,15 49,18 49,21 C49,24 51,26 54,26 C57,26 59,24 59,21 C59,18 57,15 54,17 Z" />
+    <!-- Rose centre (gold spiral) -->
+    <path android:fillColor="#C8960C"
+        android:pathData="M54,19 C52.5,20 52,22 52,23 C52,25 53,26.5 54,26.5 C55,26.5 56,25 56,23 C56,22 55.5,20 54,19 Z" />
+    <path android:fillColor="#E0B428"
+        android:pathData="M54,20.5 C53.2,21.2 53,22.2 53,23 C53,24.2 53.5,25 54,25 C54.5,25 55,24.2 55,23 C55,22.2 54.8,21.2 54,20.5 Z" />
+    <!-- Rose leaves -->
+    <path android:fillColor="#1B4D3E"
+        android:pathData="M42,22 C38,18 32,20 32,25 C32,30 38,31 42,28 C45,26 45,24 42,22 Z" />
+    <path android:fillColor="#1B4D3E"
+        android:pathData="M66,22 C70,18 76,20 76,25 C76,30 70,31 66,28 C63,26 63,24 66,22 Z" />
+    <path android:fillColor="#295E45"
+        android:pathData="M46,30 C42,29 40,33 42,37 C44,40 49,39 50,35 C51,32 49,30 46,30 Z" />
+    <path android:fillColor="#295E45"
+        android:pathData="M62,30 C66,29 68,33 66,37 C64,40 59,39 58,35 C57,32 59,30 62,30 Z" />
+
+    <!-- ===== VKM letters ===== -->
+    <!-- V -->
+    <path android:fillColor="#1B4D3E"
+        android:pathData="M30,42 L35,60 L40,42 L43,42 L37,63 L33,63 L27,42 Z" />
+    <!-- K -->
+    <path android:fillColor="#1B4D3E"
+        android:pathData="M46,42 L46,63 L49,63 L49,55 L56,63 L60,63 L52,53.5 L59.5,42 L56,42 L49,52 L49,42 Z" />
+    <!-- M -->
+    <path android:fillColor="#1B4D3E"
+        android:pathData="M63,42 L63,63 L66,63 L66,48 L71,58 L73,58 L78,48 L78,63 L81,63 L81,42 L78,42 L72,54 L66,42 Z" />
+
+    <!-- Decorative rule below VKM -->
+    <path android:fillColor="#8B1538"
+        android:pathData="M30,66 L78,66 L78,67.5 L30,67.5 Z" />
+
+    <!-- FLOWER SHOP text implied by three small dots line -->
+    <path android:fillColor="#1B4D3E"
+        android:pathData="M33,71 L75,71 L75,72.5 L33,72.5 Z" />
+
+</vector>

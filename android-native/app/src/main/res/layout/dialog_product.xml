@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/surface"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Product"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/brand_dark"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Title -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="TITLE *" android:textSize="10sp" android:textStyle="bold"
+        android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+    <EditText
+        android:id="@+id/etTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_input"
+        android:padding="14dp"
+        android:hint="Rose Bouquet"
+        android:textColorHint="@color/text_hint"
+        android:textSize="15sp"
+        android:textColor="@color/text_primary"
+        android:singleLine="true"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Description -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="DESCRIPTION" android:textSize="10sp" android:textStyle="bold"
+        android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+    <EditText
+        android:id="@+id/etDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_input"
+        android:padding="14dp"
+        android:hint="Fresh roses..."
+        android:textColorHint="@color/text_hint"
+        android:textSize="15sp"
+        android:textColor="@color/text_primary"
+        android:inputType="textMultiLine"
+        android:minLines="2"
+        android:gravity="top"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Price -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="PRICE (₹) *" android:textSize="10sp" android:textStyle="bold"
+        android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+    <EditText
+        android:id="@+id/etPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_input"
+        android:padding="14dp"
+        android:hint="499"
+        android:textColorHint="@color/text_hint"
+        android:textSize="15sp"
+        android:textColor="@color/text_primary"
+        android:inputType="numberDecimal"
+        android:singleLine="true"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Duration -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="DURATION (HOURS)" android:textSize="10sp" android:textStyle="bold"
+        android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+    <EditText
+        android:id="@+id/etDuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_input"
+        android:padding="14dp"
+        android:hint="24"
+        android:textColorHint="@color/text_hint"
+        android:textSize="15sp"
+        android:textColor="@color/text_primary"
+        android:inputType="number"
+        android:singleLine="true"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Add Images -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="IMAGES" android:textSize="10sp" android:textStyle="bold"
+        android:textColor="@color/text_secondary" android:letterSpacing="0.08" android:layout_marginBottom="6dp" />
+
+    <Button
+        android:id="@+id/btnAddImages"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_dashed"
+        android:text="📷  Add Images"
+        android:textColor="@color/primary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:stateListAnimator="@null" />
+
+    <TextView
+        android:id="@+id/tvImageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 image(s) selected"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@drawable/bg_button"
+        android:text="Save Product"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:stateListAnimator="@null"
+        android:layout_marginBottom="16dp" />
+
+</LinearLayout>

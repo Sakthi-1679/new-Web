@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#6366F1</color>
+    <color name="primary_dark">#4F46E5</color>
+    <color name="primary_light">#EDE9FE</color>
+    <color name="accent">#A78BFA</color>
+    <color name="background">#F5F3FF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_hint">#9CA3AF</color>
+    <color name="border">#E5E7EB</color>
+    <color name="divider">#F3F4F6</color>
+    <color name="brand_dark">#1E1B4B</color>
+
+    <!-- Status colors -->
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_confirmed">#6366F1</color>
+    <color name="status_completed">#22C55E</color>
+    <color name="status_cancelled">#EF4444</color>
+
+    <!-- Other -->
+    <color name="admin_badge">#FEF3C7</color>
+    <color name="admin_text">#D97706</color>
+    <color name="error">#EF4444</color>
+    <color name="success">#22C55E</color>
+    <color name="whatsapp">#22C55E</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>
