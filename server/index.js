@@ -35,7 +35,12 @@ const allowedOrigins = [
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app') || origin.includes('localhost')) {
+    if (
+      allowedOrigins.indexOf(origin) !== -1 ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com') ||
+      origin.includes('localhost')
+    ) {
       callback(null, true);
     } else {
       console.log("Blocked by CORS:", origin);
@@ -525,11 +530,11 @@ router.get('/users/:id', verifyToken, isAdmin, async (req, res) => {
 app.use('/api', router);
 app.use('/', router); // Also handle requests without /api prefix
 
-// Export app for Vercel
+// Export app for serverless environments (e.g. Vercel)
 export default app;
 
-// Start server if not running in Vercel
-if (!process.env.VERCEL) {
+// Start server on Render.com or local (non-serverless) environments
+if (process.env.RENDER || !process.env.VERCEL) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
