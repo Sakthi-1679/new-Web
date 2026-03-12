@@ -5,6 +5,10 @@ import retrofit2.http.*
 
 interface ApiService {
 
+    // ─── CSRF ────────────────────────────────────────────────
+    @GET("csrf-token")
+    suspend fun refreshCsrfToken(): com.vkmflowers.data.models.CsrfResponse
+
     // ─── Auth ────────────────────────────────────────────────
     @POST("login")
     suspend fun login(@Body body: LoginRequest): AuthResponse

@@ -41,6 +41,15 @@ class SplashActivity : AppCompatActivity() {
         // Register FCM token if user is logged in
         if (session.isLoggedIn()) {
             registerFcmToken()
+            // Fetch CSRF token if not already stored (e.g. existing sessions before CSRF was added)
+            if (session.getCsrfToken() == null) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val response = ApiClient.service.refreshCsrfToken()
+                        session.saveSession(session.getSession()!!.copy(csrfToken = response.csrfToken))
+                    } catch (_: Exception) { }
+                }
+            }
         }
 
         Handler(Looper.getMainLooper()).postDelayed({

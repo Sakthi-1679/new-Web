@@ -66,21 +66,24 @@ const cache = {
   },
 };
 
-// SECURITY: In-memory CSRF token store (keyed by JWT sub/user id)
-const csrfTokens = new Map();
-
-const generateCsrfToken = (userId) => {
-  const token = crypto.randomBytes(32).toString('hex');
-  csrfTokens.set(String(userId), token);
-  return token;
+// SECURITY: Stateless CSRF tokens derived via HMAC from the JWT.
+// No in-memory store needed — survives serverless cold-starts.
+const generateCsrfToken = (jwtToken) => {
+  return crypto.createHmac('sha256', JWT_SECRET + '_csrf')
+    .update(jwtToken)
+    .digest('hex');
 };
 
 const verifyCsrfToken = (req, res, next) => {
   // SECURITY: Validate CSRF token on state-changing requests
   const csrfHeader = req.headers['x-csrf-token'];
-  const userId = String(req.user?.id);
-  const storedToken = csrfTokens.get(userId);
-  if (!storedToken || storedToken !== csrfHeader) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(403).json({ error: 'Invalid or missing CSRF token.' });
+  }
+  const jwtToken = authHeader.slice(7);
+  const expected = generateCsrfToken(jwtToken);
+  if (!csrfHeader || csrfHeader !== expected) {
     return res.status(403).json({ error: 'Invalid or missing CSRF token.' });
   }
   next();
@@ -564,7 +567,7 @@ router.post('/register', authLimiter, async (req, res) => {
     const user = { id: result.insertId.toString(), name, email, phone: phone || '', city: city || 'Kanchipuram', area: area || '', role: 'USER' };
     const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
     // SECURITY: Generate CSRF token for the new session
-    const csrfToken = generateCsrfToken(user.id);
+    const csrfToken = generateCsrfToken(token);
     res.json({ user, token, csrfToken });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
@@ -594,7 +597,7 @@ router.post('/login', authLimiter, async (req, res) => {
       safeUser.id = safeUser.id.toString();
       const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: '7d' });
       // SECURITY: Generate CSRF token for the authenticated session
-      const csrfToken = generateCsrfToken(safeUser.id);
+      const csrfToken = generateCsrfToken(token);
       res.json({ user: safeUser, token, csrfToken });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
@@ -650,7 +653,7 @@ router.post('/google-login', authLimiter, async (req, res) => {
     safeUser.id = safeUser.id.toString();
     const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: '7d' });
     // SECURITY: Generate CSRF token for the authenticated session
-    const csrfToken = generateCsrfToken(safeUser.id);
+    const csrfToken = generateCsrfToken(token);
     res.json({ user: safeUser, token, csrfToken });
   } catch (err) {
     // SECURITY: Log full error server-side, return generic message to client
@@ -1096,9 +1099,10 @@ router.get('/users/:id', verifyToken, isAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Fetch failed' }); }
 });
 
-// SECURITY: CSRF token refresh endpoint (client calls after login to get a fresh token)
+// SECURITY: CSRF token refresh endpoint (client calls on startup if CSRF token is missing)
 router.get('/csrf-token', verifyToken, (req, res) => {
-  const csrfToken = generateCsrfToken(req.user.id);
+  const jwtToken = req.headers['authorization'].slice(7);
+  const csrfToken = generateCsrfToken(jwtToken);
   res.json({ csrfToken });
 });
 

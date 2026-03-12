@@ -137,3 +137,7 @@ data class FcmTokenRequest(
 data class GoogleLoginRequest(
     val idToken: String
 )
+
+data class CsrfResponse(
+    val csrfToken: String
+)
