@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "101425062309",
+    "project_id": "vkm-flowers",
+    "storage_bucket": "vkm-flowers.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101425062309:android:6d63dc0a32155ab250084c",
+        "android_client_info": {
+          "package_name": "com.vkmflowers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "101425062309-q9s2ig1ah580cccvnuh85ctbmkfdq23e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEB9q9Ae4WZoqNTK0fDhX8zCZsYrkb5oM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101425062309-q9s2ig1ah580cccvnuh85ctbmkfdq23e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

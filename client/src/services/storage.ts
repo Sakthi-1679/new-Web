@@ -21,7 +21,6 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 const apiRequest = async (endpoint: string, method: string = 'GET', body?: any) => {
-  // Construct full URL.
   const fullUrl = `${API_URL}${endpoint}`;
 
   try {
@@ -30,6 +29,14 @@ const apiRequest = async (endpoint: string, method: string = 'GET', body?: any) 
     
     if (session?.token) {
       headers['Authorization'] = `Bearer ${session.token}`;
+    }
+
+    // SECURITY: Include CSRF token on state-changing requests
+    if (['POST', 'PUT', 'DELETE'].includes(method.toUpperCase())) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
     }
 
     const config: any = { method, headers };
@@ -56,26 +63,41 @@ const apiRequest = async (endpoint: string, method: string = 'GET', body?: any) 
   }
 };
 
+// SECURITY: Store and retrieve CSRF token
+const getCsrfToken = (): string | null => {
+  return sessionStorage.getItem('vkm_csrf');
+};
+
+const storeCsrfToken = (token: string) => {
+  sessionStorage.setItem('vkm_csrf', token);
+};
+
 // Auth
 export const login = async (email: string, password: string): Promise<AuthResponse> => {
   const data = await apiRequest('/login', 'POST', { email, password });
-  localStorage.setItem('vkm_session', JSON.stringify(data));
+  if (data.csrfToken) storeCsrfToken(data.csrfToken);
+  localStorage.setItem('vkm_session', JSON.stringify({ user: data.user, token: data.token }));
   return data;
 };
 
 export const register = async (userData: any): Promise<AuthResponse> => {
   const data = await apiRequest('/register', 'POST', userData);
-  localStorage.setItem('vkm_session', JSON.stringify(data));
+  if (data.csrfToken) storeCsrfToken(data.csrfToken);
+  localStorage.setItem('vkm_session', JSON.stringify({ user: data.user, token: data.token }));
   return data;
 };
 
 export const googleLogin = async (idToken: string): Promise<AuthResponse> => {
   const data = await apiRequest('/google-login', 'POST', { idToken });
-  localStorage.setItem('vkm_session', JSON.stringify(data));
+  if (data.csrfToken) storeCsrfToken(data.csrfToken);
+  localStorage.setItem('vkm_session', JSON.stringify({ user: data.user, token: data.token }));
   return data;
 };
 
-export const logout = () => { localStorage.removeItem('vkm_session'); };
+export const logout = () => {
+  localStorage.removeItem('vkm_session');
+  sessionStorage.removeItem('vkm_csrf');
+};
 export const getCurrentSession = (): AuthResponse | null => {
   const session = localStorage.getItem('vkm_session');
   try {
@@ -159,12 +181,11 @@ export const deleteCustomOrder = async (id: string): Promise<void> => {
 };
 
 // User Specific Getters
+// PERF: Server now handles user_id filtering in the SQL WHERE clause.
 export const getUserOrders = async (userId: string): Promise<Order[]> => {
-  const all = await getAllOrders();
-  return all.filter(o => o.userId === userId);
+  return await getAllOrders();
 };
 
 export const getUserCustomOrders = async (userId: string): Promise<CustomOrder[]> => {
-  const all = await getAllCustomOrders();
-  return all.filter(o => o.userId === userId);
+  return await getAllCustomOrders();
 };

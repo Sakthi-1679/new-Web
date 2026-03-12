@@ -5,9 +5,9 @@ import { User, Product, Order, CustomOrder, OrderStatus, AuthResponse } from '..
 // CONFIG — update API_URL after deploying to Render
 // For local Android emulator testing: http://10.0.2.2:3001/api
 // For local physical device testing:  http://YOUR_LAN_IP:3001/api
-// For production (Render): https://YOUR_APP.onrender.com/api
+// For production (Render): https://new-web-2o8n.onrender.com/api
 // ─────────────────────────────────────────────────────────────
-export const API_URL = 'https://YOUR_APP.onrender.com/api';
+export const API_URL = 'https://new-web-2o8n.onrender.com/api';
 
 const SESSION_KEY = 'vkm_session';
 

@@ -19,8 +19,10 @@ export const Login: React.FC = () => {
   useEffect(() => {
     const initGoogle = () => {
       if ((window as any).google && googleBtnRef.current) {
+        // SECURITY: Google client ID loaded from environment variable (not hardcoded)
+        const googleClientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '';
         (window as any).google.accounts.id.initialize({
-          client_id: '101425062309-q9s2ig1ah580cccvnuh85ctbmkfdq23e.apps.googleusercontent.com',
+          client_id: googleClientId,
           callback: handleGoogleResponse,
         });
         (window as any).google.accounts.id.renderButton(googleBtnRef.current, {

@@ -12,5 +12,17 @@ export default defineConfig({
         secure: false,
       }
     }
+  },
+  build: {
+    // PERF: Code-splitting – separate large vendor libraries into their own chunks
+    // so they can be cached independently by the browser (they rarely change).
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-icons': ['lucide-react'],
+        }
+      }
+    }
   }
 })
