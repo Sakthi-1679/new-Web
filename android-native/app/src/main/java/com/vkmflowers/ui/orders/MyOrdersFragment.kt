@@ -23,6 +23,7 @@ import com.vkmflowers.databinding.ItemCustomOrderBinding
 import com.vkmflowers.utils.formatDate
 import com.vkmflowers.utils.formatPrice
 import com.vkmflowers.utils.getStatusColor
+import com.bumptech.glide.Glide
 import com.vkmflowers.fcm.VkmFirebaseMessagingService
 import com.vkmflowers.utils.snack
 import kotlinx.coroutines.launch
@@ -135,6 +136,12 @@ class MyOrdersFragment : Fragment() {
         override fun onBindViewHolder(holder: VH, position: Int) {
             val o = items[position]
             with(holder.b) {
+                Glide.with(root.context)
+                    .load(o.productImage)
+                    .placeholder(com.vkmflowers.R.drawable.ic_flower)
+                    .error(com.vkmflowers.R.drawable.ic_flower)
+                    .centerCrop()
+                    .into(ivProduct)
                 tvTitle.text = o.productTitle
                 tvBillId.text = o.billId ?: ""
                 tvBillId.visibility = if (o.billId != null) View.VISIBLE else View.GONE

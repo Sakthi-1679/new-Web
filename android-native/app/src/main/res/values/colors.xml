@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#6366F1</color>
-    <color name="primary_dark">#4F46E5</color>
-    <color name="primary_light">#EDE9FE</color>
-    <color name="accent">#A78BFA</color>
-    <color name="background">#F5F3FF</color>
+    <color name="primary">#E8417A</color>
+    <color name="primary_dark">#C23263</color>
+    <color name="primary_light">#FDEEF4</color>
+    <color name="accent">#FF85C2</color>
+    <color name="background">#FEF4F8</color>
     <color name="surface">#FFFFFF</color>
-    <color name="text_primary">#111827</color>
-    <color name="text_secondary">#6B7280</color>
-    <color name="text_hint">#9CA3AF</color>
-    <color name="border">#E5E7EB</color>
-    <color name="divider">#F3F4F6</color>
-    <color name="brand_dark">#1E1B4B</color>
+    <color name="text_primary">#1E0816</color>
+    <color name="text_secondary">#7B4A65</color>
+    <color name="text_hint">#BFA0B4</color>
+    <color name="border">#F0C8D8</color>
+    <color name="divider">#FAE6EF</color>
+    <color name="brand_dark">#2B0F20</color>
 
     <!-- Status colors -->
     <color name="status_pending">#F59E0B</color>
-    <color name="status_confirmed">#6366F1</color>
+    <color name="status_confirmed">#E8417A</color>
     <color name="status_completed">#22C55E</color>
     <color name="status_cancelled">#EF4444</color>
 
