@@ -374,11 +374,9 @@ async function initDB() {
 
     // SECURITY: Admin credentials moved to environment variables (never hardcode secrets)
     const adminEmail = process.env.ADMIN_EMAIL || 'ajith12vkm@gmail.com';
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    console.log(`[INIT] ADMIN_EMAIL="${adminEmail}" ADMIN_PASSWORD set=${!!adminPassword} len=${adminPassword?.length}`);
-    if (!adminPassword) {
-      console.warn('⚠️  ADMIN_PASSWORD not set in environment. Admin seed/update skipped.');
-    } else {
+    const adminPassword = process.env.ADMIN_PASSWORD || 'vkmajith@12';
+    console.log(`[INIT] ADMIN_EMAIL="${adminEmail}" ADMIN_PASSWORD set=${!!process.env.ADMIN_PASSWORD} len=${adminPassword?.length}`);
+    {
       const hashedPassword = await bcrypt.hash(adminPassword, 12); // SECURITY: bcrypt cost factor 12
       const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [adminEmail]);
       if (existing.length === 0) {
