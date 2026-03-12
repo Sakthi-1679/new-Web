@@ -48,6 +48,7 @@ class SignupActivity : AppCompatActivity() {
 
         session = SessionManager(this)
         ApiClient.tokenProvider = { session.getToken() }
+        ApiClient.csrfTokenProvider = { session.getCsrfToken() }
 
         // Google Sign-In setup
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

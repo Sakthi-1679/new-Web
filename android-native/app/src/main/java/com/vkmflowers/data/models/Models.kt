@@ -64,7 +64,8 @@ data class CustomOrder(
 // ─── Auth Response ───────────────────────────────────────────
 data class AuthResponse(
     val user: User,
-    val token: String
+    val token: String,
+    val csrfToken: String? = null
 )
 
 // ─── Request Bodies ──────────────────────────────────────────

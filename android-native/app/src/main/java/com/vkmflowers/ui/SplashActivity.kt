@@ -26,8 +26,9 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val session = SessionManager(this)
-        // Wire token provider for Retrofit interceptor
+        // Wire token and CSRF providers for Retrofit interceptors
         ApiClient.tokenProvider = { session.getToken() }
+        ApiClient.csrfTokenProvider = { session.getCsrfToken() }
 
         // Request notification permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

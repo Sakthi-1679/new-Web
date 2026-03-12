@@ -14,10 +14,12 @@ class SessionManager(context: Context) {
 
     companion object {
         private const val KEY_SESSION = "auth_session"
+        private const val KEY_CSRF = "csrf_token"
     }
 
     fun saveSession(data: AuthResponse) {
         prefs.edit().putString(KEY_SESSION, gson.toJson(data)).apply()
+        data.csrfToken?.let { prefs.edit().putString(KEY_CSRF, it).apply() }
     }
 
     fun getSession(): AuthResponse? {
@@ -31,6 +33,8 @@ class SessionManager(context: Context) {
 
     fun getToken(): String? = getSession()?.token
 
+    fun getCsrfToken(): String? = prefs.getString(KEY_CSRF, null)
+
     fun getUser(): User? = getSession()?.user
 
     fun isLoggedIn(): Boolean = getSession() != null
@@ -38,6 +42,6 @@ class SessionManager(context: Context) {
     fun isAdmin(): Boolean = getUser()?.role?.name?.uppercase() == "ADMIN"
 
     fun clearSession() {
-        prefs.edit().remove(KEY_SESSION).apply()
+        prefs.edit().remove(KEY_SESSION).remove(KEY_CSRF).apply()
     }
 }

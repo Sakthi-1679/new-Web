@@ -16,6 +16,9 @@ object ApiClient {
     // Token provider - set this after SessionManager is initialized
     var tokenProvider: (() -> String?)? = null
 
+    // CSRF token provider - set alongside tokenProvider
+    var csrfTokenProvider: (() -> String?)? = null
+
     /** Adds Authorization + Content-Type headers to every request. */
     private val authInterceptor = Interceptor { chain ->
         val token = tokenProvider?.invoke()
@@ -26,6 +29,18 @@ object ApiClient {
                 if (token != null) addHeader("Authorization", "Bearer $token")
             }
             .build()
+        chain.proceed(request)
+    }
+
+    /** Adds X-CSRF-Token header on state-mutating requests. */
+    private val csrfInterceptor = Interceptor { chain ->
+        val method = chain.request().method
+        val request = if (method == "POST" || method == "PUT" || method == "DELETE") {
+            val csrf = csrfTokenProvider?.invoke()
+            if (csrf != null) {
+                chain.request().newBuilder().addHeader("X-CSRF-Token", csrf).build()
+            } else chain.request()
+        } else chain.request()
         chain.proceed(request)
     }
 
@@ -50,12 +65,14 @@ object ApiClient {
         response
     }
 
+    // Logging disabled in production to prevent token/body leakage
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.NONE
     }
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
+        .addInterceptor(csrfInterceptor)
         .addInterceptor(errorInterceptor)   // parse errors before Gson sees them
         .addInterceptor(loggingInterceptor)
         .connectTimeout(60, TimeUnit.SECONDS)  // Render free tier can take ~60s to wake

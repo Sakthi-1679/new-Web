@@ -20,7 +20,6 @@ import com.vkmflowers.data.network.ApiClient
 import com.vkmflowers.databinding.FragmentMyOrdersBinding
 import com.vkmflowers.databinding.ItemOrderBinding
 import com.vkmflowers.databinding.ItemCustomOrderBinding
-import com.vkmflowers.utils.SessionManager
 import com.vkmflowers.utils.formatDate
 import com.vkmflowers.utils.formatPrice
 import com.vkmflowers.utils.getStatusColor
@@ -32,7 +31,6 @@ class MyOrdersFragment : Fragment() {
 
     private var _binding: FragmentMyOrdersBinding? = null
     private val binding get() = _binding!!
-    private lateinit var session: SessionManager
 
     private val orderReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -47,7 +45,6 @@ class MyOrdersFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        session = SessionManager(requireContext())
 
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(orderReceiver, IntentFilter(VkmFirebaseMessagingService.ACTION_NEW_ORDER))
@@ -65,13 +62,11 @@ class MyOrdersFragment : Fragment() {
 
     private fun loadData() {
         binding.progressBar.visibility = View.VISIBLE
-        val userId = session.getUser()?.id ?: return
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val allOrders = ApiClient.service.getAllOrders()
-                orders = allOrders.filter { it.userId == userId }.reversed()
-                val allCustom = ApiClient.service.getAllCustomOrders()
-                customOrders = allCustom.filter { it.userId == userId }.reversed()
+                // Server already returns only the current user's orders (JWT-filtered)
+                orders = ApiClient.service.getAllOrders().reversed()
+                customOrders = ApiClient.service.getAllCustomOrders().reversed()
                 if (_binding == null) return@launch
                 updateTabLabels()
                 showTab(currentTab)
