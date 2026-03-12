@@ -389,10 +389,37 @@ async function initDB() {
         console.log("⚙️  Ensuring Admin Credentials & Role are correct...");
         await db.query('UPDATE users SET password = ?, role = ? WHERE email = ?', [hashedPassword, 'ADMIN', adminEmail]);
       }
+      adminSeeded = true;
     }
 
   } catch (err) {
     console.error("❌ Critical Database Error:", err.message);
+  }
+}
+
+// Track whether admin seeding succeeded
+let adminSeeded = false;
+
+async function ensureAdmin() {
+  if (adminSeeded) return;
+  try {
+    const db = await getDB();
+    const adminEmail = process.env.ADMIN_EMAIL || 'ajith12vkm@gmail.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'vkmajith@12';
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
+    const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [adminEmail]);
+    if (existing.length === 0) {
+      await db.query(
+        'INSERT INTO users (name, email, password, phone, city, area, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [adminEmail, adminEmail, hashedPassword, '9999999999', 'Kanchipuram', 'Headquarters', 'ADMIN']
+      );
+    } else {
+      await db.query('UPDATE users SET password = ?, role = ? WHERE email = ?', [hashedPassword, 'ADMIN', adminEmail]);
+    }
+    adminSeeded = true;
+    console.log('✅ Admin seeded successfully');
+  } catch (e) {
+    console.error('❌ ensureAdmin failed:', e.message);
   }
 }
 
@@ -583,7 +610,8 @@ router.post('/register', authLimiter, async (req, res) => {
 // SECURITY: Rate limit login to prevent brute-force attacks
 router.post('/login', authLimiter, async (req, res) => {
   try {
-    await initPromise; // Ensure admin seeding is complete before login
+    await initPromise;
+    await ensureAdmin(); // Retry admin seed if it failed during init
     const db = await getDB();
     const { email, password } = req.body;
     // SECURITY: Validate email format before querying
