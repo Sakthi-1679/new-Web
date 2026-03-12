@@ -375,6 +375,7 @@ async function initDB() {
     // SECURITY: Admin credentials moved to environment variables (never hardcode secrets)
     const adminEmail = process.env.ADMIN_EMAIL || 'ajith12vkm@gmail.com';
     const adminPassword = process.env.ADMIN_PASSWORD;
+    console.log(`[INIT] ADMIN_EMAIL="${adminEmail}" ADMIN_PASSWORD set=${!!adminPassword} len=${adminPassword?.length}`);
     if (!adminPassword) {
       console.warn('⚠️  ADMIN_PASSWORD not set in environment. Admin seed/update skipped.');
     } else {
@@ -592,9 +593,11 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password format' });
     }
     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    console.log(`[LOGIN] email="${email}" found=${rows.length > 0} role=${rows[0]?.role || 'N/A'}`);
     if (rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
     const user = rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(`[LOGIN] bcrypt match=${isMatch} hash_len=${user.password?.length}`);
     if (isMatch) {
       const { password: _, ...safeUser } = user;
       safeUser.id = safeUser.id.toString();
