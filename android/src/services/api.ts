@@ -2,12 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Product, Order, CustomOrder, OrderStatus, AuthResponse } from '../types';
 
 // ─────────────────────────────────────────────────────────────
-// CONFIG — update API_URL after deploying to Render
+// CONFIG — API URL
 // For local Android emulator testing: http://10.0.2.2:3001/api
 // For local physical device testing:  http://YOUR_LAN_IP:3001/api
-// For production (Render): https://new-web-2o8n.onrender.com/api
+// For production (Vercel): https://vkm-coral.vercel.app/api
 // ─────────────────────────────────────────────────────────────
-export const API_URL = 'https://new-web-2o8n.onrender.com/api';
+export const API_URL = 'https://vkm-coral.vercel.app/api';
 
 const SESSION_KEY = 'vkm_session';
 

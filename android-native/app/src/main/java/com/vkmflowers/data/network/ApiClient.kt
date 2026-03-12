@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://new-web-2o8n.onrender.com/api/"
+    private const val BASE_URL = "https://vkm-coral.vercel.app/api/"
 
     // Token provider - set this after SessionManager is initialized
     var tokenProvider: (() -> String?)? = null
