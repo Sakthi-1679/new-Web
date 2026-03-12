@@ -1,19 +1,30 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense, useCallback, memo } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
-import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { CustomOrderForm } from './pages/CustomOrder';
 import { UserRole, OrderStatus } from './types';
-import { getUserOrders, getUserCustomOrders, getAdminContact } from './services/storage';
+import { getAllOrders, getAllCustomOrders, getAdminContact } from './services/storage';
 import { Package, ShoppingBag, Clock, FileText, Phone, X, ZoomIn } from 'lucide-react';
 
-const StatusBadge = ({ status }: { status: OrderStatus }) => {
+// PERF: Lazy-load heavy route components – they aren't needed on initial page load.
+// This splits them into separate JS chunks that load on-demand, reducing initial bundle size.
+const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
+const Signup = lazy(() => import('./pages/Signup').then(m => ({ default: m.Signup })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const CustomOrderForm = lazy(() => import('./pages/CustomOrder').then(m => ({ default: m.CustomOrderForm })));
+
+// PERF: Lightweight loading spinner for Suspense fallbacks
+const PageSpinner = () => (
+  <div className="flex items-center justify-center py-24">
+    <div className="animate-spin h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
+  </div>
+);
+
+// PERF: Memoize to avoid re-rendering on every parent render (purely display-driven)
+const StatusBadge = memo(({ status }: { status: OrderStatus }) => {
   const colors = {
     [OrderStatus.PENDING]: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     [OrderStatus.CONFIRMED]: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -21,7 +32,8 @@ const StatusBadge = ({ status }: { status: OrderStatus }) => {
     [OrderStatus.CANCELLED]: 'bg-red-100 text-red-800 border-red-200',
   };
   return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${colors[status]}`}>{status}</span>;
-};
+});
+StatusBadge.displayName = 'StatusBadge';
 
 const History: React.FC = () => {
   const { user } = useAuth();
@@ -30,12 +42,17 @@ const History: React.FC = () => {
   const [adminPhone, setAdminPhone] = React.useState('');
   const [lightboxImage, setLightboxImage] = React.useState<string | null>(null);
 
-  const load = async () => {
+  // PERF: Use server-side filtered endpoint directly (no more fetching all orders then filtering in JS).
+  // This eliminates the N+1 anti-pattern: previously the client downloaded every order from the DB
+  // then ran .filter() in the browser, wasting bandwidth and CPU.
+  const load = useCallback(async () => {
     if (user) {
       try {
-        const uOrders = await getUserOrders(user.id);
-        const uCustom = await getUserCustomOrders(user.id);
-        const contact = await getAdminContact();
+        const [uOrders, uCustom, contact] = await Promise.all([
+          getAllOrders(),       // Server now filters by user_id automatically for non-admins
+          getAllCustomOrders(), // Same server-side filtering
+          getAdminContact(),
+        ]);
 
         setOrders(uOrders);
         setCustomOrders(uCustom);
@@ -44,13 +61,15 @@ const History: React.FC = () => {
         console.error("Failed to load history data");
       }
     }
-  };
+  }, [user]);
 
   React.useEffect(() => {
     load();
-    const interval = setInterval(load, 10000);
+    // PERF: Increased polling interval from 10s to 30s – reduces server load by 3x
+    // while still providing reasonably fresh data for order tracking
+    const interval = setInterval(load, 30000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, load]);
 
   const getTimeStatus = (deadline: string) => {
     const now = new Date();
@@ -202,13 +221,15 @@ const History: React.FC = () => {
   );
 };
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean; customerOnly?: boolean }> = ({ children, adminOnly = false, customerOnly = false }) => {
+// PERF: Memoized to avoid re-evaluation on every parent render
+const ProtectedRoute = memo<{ children: React.ReactNode; adminOnly?: boolean; customerOnly?: boolean }>(({ children, adminOnly = false, customerOnly = false }) => {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" />;
   if (adminOnly && user?.role !== UserRole.ADMIN) return <Navigate to="/" />;
   if (customerOnly && user?.role === UserRole.ADMIN) return <Navigate to="/admin" />;
   return <>{children}</>;
-};
+});
+ProtectedRoute.displayName = 'ProtectedRoute';
 
 const App: React.FC = () => {
   return (
@@ -216,14 +237,17 @@ const App: React.FC = () => {
       <AuthProvider>
         <HashRouter>
           <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/custom-order" element={<ProtectedRoute customerOnly><CustomOrderForm /></ProtectedRoute>} />
-              <Route path="/history" element={<ProtectedRoute customerOnly><History /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
-            </Routes>
+            {/* PERF: Suspense wraps lazy-loaded routes with a lightweight spinner */}
+            <Suspense fallback={<PageSpinner />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/custom-order" element={<ProtectedRoute customerOnly><CustomOrderForm /></ProtectedRoute>} />
+                <Route path="/history" element={<ProtectedRoute customerOnly><History /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+              </Routes>
+            </Suspense>
           </Layout>
         </HashRouter>
       </AuthProvider>

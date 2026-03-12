@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Product, UserRole } from '../types';
 import { getProducts, placeOrder, getAdminContact } from '../services/storage';
 import { useAuth } from '../context/AuthContext';
@@ -43,8 +43,13 @@ export const Home: React.FC = () => {
   const zoomPrev = (e: React.MouseEvent) => { e.stopPropagation(); setZoomedIndex(i => (i - 1 + zoomedImages.length) % zoomedImages.length); };
   const zoomNext = (e: React.MouseEvent) => { e.stopPropagation(); setZoomedIndex(i => (i + 1) % zoomedImages.length); };
 
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // PERF: useMemo avoids re-computing the filtered list on every render unless
+  // products or searchTerm actually change. Saves CPU on every keystroke during search.
+  const filteredProducts = useMemo(() =>
+    products.filter(p =>
+      p.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+    [products, searchTerm]
   );
 
   const handleOrderClick = (product: Product) => {

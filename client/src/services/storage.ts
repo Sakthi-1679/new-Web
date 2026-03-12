@@ -75,6 +75,7 @@ const storeCsrfToken = (token: string) => {
 // Auth
 export const login = async (email: string, password: string): Promise<AuthResponse> => {
   const data = await apiRequest('/login', 'POST', { email, password });
+  // SECURITY: Store CSRF token from login response
   if (data.csrfToken) storeCsrfToken(data.csrfToken);
   localStorage.setItem('vkm_session', JSON.stringify({ user: data.user, token: data.token }));
   return data;
@@ -96,7 +97,7 @@ export const googleLogin = async (idToken: string): Promise<AuthResponse> => {
 
 export const logout = () => {
   localStorage.removeItem('vkm_session');
-  sessionStorage.removeItem('vkm_csrf');
+  sessionStorage.removeItem('vkm_csrf'); // SECURITY: Clear CSRF token on logout
 };
 export const getCurrentSession = (): AuthResponse | null => {
   const session = localStorage.getItem('vkm_session');
@@ -182,6 +183,9 @@ export const deleteCustomOrder = async (id: string): Promise<void> => {
 
 // User Specific Getters
 // PERF: Server now handles user_id filtering in the SQL WHERE clause.
+// These functions just call the same endpoints – the server returns only
+// the current user's orders (for non-admins), eliminating the need to
+// download the entire orders table and filter client-side.
 export const getUserOrders = async (userId: string): Promise<Order[]> => {
   return await getAllOrders();
 };
