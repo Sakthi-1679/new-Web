@@ -397,7 +397,9 @@ async function initDB() {
   }
 }
 
-initDB();
+// Store the promise so routes can await it — prevents race condition on Vercel
+// cold-starts where the first request arrives before initDB() finishes seeding.
+const initPromise = initDB();
 
 /**
  * HELPERS
@@ -582,6 +584,7 @@ router.post('/register', authLimiter, async (req, res) => {
 // SECURITY: Rate limit login to prevent brute-force attacks
 router.post('/login', authLimiter, async (req, res) => {
   try {
+    await initPromise; // Ensure admin seeding is complete before login
     const db = await getDB();
     const { email, password } = req.body;
     // SECURITY: Validate email format before querying
