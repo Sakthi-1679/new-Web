@@ -63,13 +63,14 @@ const apiRequest = async (endpoint: string, method: string = 'GET', body?: any) 
   }
 };
 
-// SECURITY: Store and retrieve CSRF token
+// SECURITY: Store and retrieve CSRF token.
+// Stored in localStorage so it survives page refreshes (JWT is also in localStorage).
 const getCsrfToken = (): string | null => {
-  return sessionStorage.getItem('vkm_csrf');
+  return localStorage.getItem('vkm_csrf');
 };
 
 const storeCsrfToken = (token: string) => {
-  sessionStorage.setItem('vkm_csrf', token);
+  localStorage.setItem('vkm_csrf', token);
 };
 
 // Auth
@@ -97,7 +98,7 @@ export const googleLogin = async (idToken: string): Promise<AuthResponse> => {
 
 export const logout = () => {
   localStorage.removeItem('vkm_session');
-  sessionStorage.removeItem('vkm_csrf'); // SECURITY: Clear CSRF token on logout
+  localStorage.removeItem('vkm_csrf'); // SECURITY: Clear CSRF token on logout
 };
 export const getCurrentSession = (): AuthResponse | null => {
   const session = localStorage.getItem('vkm_session');
